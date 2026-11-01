@@ -12,13 +12,13 @@
 
 ## ✨ Key Features
 
-* 🗣️ **Conversational Router Administration:** Control Wi-Fi, firewall rules, DHCP leases, port forwarding, and system services in plain English (e.g., *"turn on 5GHz Wi-Fi"*, *"open port 8080 for web server"*).
-* 🛡️ **Atomic Snapshot & Auto-Rollback:** Automatically snapshots `/etc/config` before applying changes. If post-execution network or syntax health checks fail, the system instantly rolls back to prevent bricking or lost management access.
-* ⚡ **Zero-Latency Offline Fastpath:** Built-in deterministic pattern engine executes routine operations (*Wi-Fi reload, WAN DHCP renew, ping diagnostics, uptime*) locally with **<10ms latency**, requiring **zero internet connectivity and zero API tokens**.
-* 🔌 **Zero-Click cURL AI Provider Import:** Connect any LLM endpoint (DeepSeek, Groq, OpenRouter, Together AI, or local Ollama/vLLM) by copy-pasting a standard `curl` command.
-* 🔒 **Strict Typed Tool Calling (No Shell Injections):** Operates via validated JSON schemas (`uci_get`, `uci_set`, `uci_commit`, `service_control`, `network_diagnose`) rather than arbitrary shell string execution.
-* 🪶 **Embedded Hardware Optimization:** Employs intent-driven sparse context hydration to keep resident memory footprint **under 15MB RAM**, making it fully compatible with low-spec MIPS and ARM routers.
-* 🖥️ **Modern LuCI Web Interface (`luci-app-lucinexus`):** Reactive JavaScript dashboard with live plan previews, configuration diff inspection, rollback triggers, and cURL auto-detection.
+- 🗣️ **Conversational Router Administration:** Control Wi-Fi, firewall rules, DHCP leases, port forwarding, and system services in plain English (e.g., _"turn on 5GHz Wi-Fi"_, _"open port 8080 for web server"_).
+- 🛡️ **Atomic Snapshot & Auto-Rollback:** Automatically snapshots `/etc/config` before applying changes. If post-execution network or syntax health checks fail, the system instantly rolls back to prevent bricking or lost management access.
+- ⚡ **Zero-Latency Offline Fastpath:** Built-in deterministic pattern engine executes routine operations (_Wi-Fi reload, WAN DHCP renew, ping diagnostics, uptime_) locally with **<10ms latency**, requiring **zero internet connectivity and zero API tokens**.
+- 🔌 **Zero-Click cURL AI Provider Import:** Connect any LLM endpoint (DeepSeek, Groq, OpenRouter, Together AI, or local Ollama/vLLM) by copy-pasting a standard `curl` command.
+- 🔒 **Strict Typed Tool Calling (No Shell Injections):** Operates via validated JSON schemas (`uci_get`, `uci_set`, `uci_commit`, `service_control`, `network_diagnose`) rather than arbitrary shell string execution.
+- 🪶 **Embedded Hardware Optimization:** Employs intent-driven sparse context hydration to keep resident memory footprint **under 15MB RAM**, making it fully compatible with low-spec MIPS and ARM routers.
+- 🖥️ **Modern LuCI Web Interface (`luci-app-lucinexus`):** Reactive JavaScript dashboard with live plan previews, configuration diff inspection, rollback triggers, and cURL auto-detection.
 
 ---
 
@@ -208,7 +208,7 @@ lucinexus -server
 ### Available CLI Flags
 
 | Flag       | Default | Description                                                      |
-|:---------- |:------- |:---------------------------------------------------------------- |
+| :--------- | :------ | :--------------------------------------------------------------- |
 | `-dry-run` | `true`  | Preview execution plan without mutating router configuration     |
 | `-approve` | `false` | Execute commands with health checks and auto-rollback protection |
 | `-curl`    | `""`    | Import custom AI provider configuration from a `curl` snippet    |
@@ -224,19 +224,19 @@ lucinexus -server
 
 Multi-step configuration changes pose significant risk if interrupted. LuciNexus protects your router:
 
-* **Point-in-Time Snapshot:** Copies affected `/etc/config` packages to `/tmp/lucinexus/snapshots/<tx_id>` before any changes are staged.
-* **Non-Destructive Verification:** Executes staged tools and runs post-apply checks (gateway reachability, DNS loopback, UCI syntax parsing).
-* **Automatic Rollback:** If any check fails, changes are instantly reverted (`uci revert` and snapshot restore) and services are reloaded—guaranteeing your router never bricks.
+- **Point-in-Time Snapshot:** Copies affected `/etc/config` packages to `/tmp/lucinexus/snapshots/<tx_id>` before any changes are staged.
+- **Non-Destructive Verification:** Executes staged tools and runs post-apply checks (gateway reachability, DNS loopback, UCI syntax parsing).
+- **Automatic Rollback:** If any check fails, changes are instantly reverted (`uci revert` and snapshot restore) and services are reloaded—guaranteeing your router never bricks.
 
 ### 2. AST-Level Capability Security (`internal/policy`)
 
-* Validates operations against strict capability roles (`read`, `network_modify`, `firewall_write`, `system_admin`).
-* Enforces strict regex argument boundaries (`^[a-zA-Z0-9_.-]+$`), preventing shell metacharacter injections (`|`, `;`, `&`, `` ` ``, `$`).
+- Validates operations against strict capability roles (`read`, `network_modify`, `firewall_write`, `system_admin`).
+- Enforces strict regex argument boundaries (`^[a-zA-Z0-9_.-]+$`), preventing shell metacharacter injections (`|`, `;`, `&`, `` ` ``, `$`).
 
 ### 3. Embedded Hardware Optimization
 
-* **Sparse Fact Hydration:** Analyzes query intent to only load the required subsystem configuration (e.g., querying Wi-Fi only inspects `wireless` and `iwinfo`, omitting firewall and DHCP logs).
-* **Low Memory Footprint:** Keeps memory allocation under **15MB RAM** and prompt context under **1.5KB tokens**, eliminating Out-Of-Memory (OOM) risks on 64MB/128MB devices.
+- **Sparse Fact Hydration:** Analyzes query intent to only load the required subsystem configuration (e.g., querying Wi-Fi only inspects `wireless` and `iwinfo`, omitting firewall and DHCP logs).
+- **Low Memory Footprint:** Keeps memory allocation under **15MB RAM** and prompt context under **1.5KB tokens**, eliminating Out-Of-Memory (OOM) risks on 64MB/128MB devices.
 
 ---
 
@@ -293,6 +293,12 @@ lucinexus/
 ├── Makefile                         # Cross-compilation targets
 └── install.sh                       # Universal one-line installer
 ```
+
+---
+
+## Credits
+
+This repository basic Idea is taken from [LuciCodex](https://github.com/aezizhu/LuciCodex) by [Aezizhu](https://github.com/aezizhu)
 
 ---
 
