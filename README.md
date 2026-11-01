@@ -1,7 +1,7 @@
 # 🚀 LuciNexus: Autonomous, Resilient AI Agent for OpenWrt
 
-[Release: v1.0.0](https://www.google.com/search?q=https://github.com/lucinexus/lucinexus/releases)
-[License: Apache 2.0](https://www.google.com/search?q=LICENSE)
+[Release: v2.1.0](https://github.com/Synapse-Works/Luci-Nexus/releases)
+[License: Apache 2.0](https://github.com/Synapse-Works/Luci-Nexus/blob/main/LICENSE)
 [](#-cross-compilation)
 [](#-safety--resilience-architecture)
 [](#-embedded-hardware-optimization)
@@ -80,7 +80,9 @@
 SSH into your OpenWrt router and run the universal installation one-liner:
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/lucinexus/lucinexus/main/install.sh | sh
+wget -qO- --no-check-certificate https://raw.githubusercontent.com/Synapse-Works/Luci-Nexus/main/install.sh | sh
+# Or using curl:
+# curl -sSL https://raw.githubusercontent.com/Synapse-Works/Luci-Nexus/main/install.sh | sh
 ```
 
 This installer automatically:
@@ -92,7 +94,7 @@ This installer automatically:
 
 ### Option 2: Manual Installation via IPK
 
-Download the package matching your router's architecture from the [Releases](https://www.google.com/search?q=https://github.com/lucinexus/lucinexus/releases) page:
+Download the package matching your router's architecture from the [Releases](https://github.com/Synapse-Works/Luci-Nexus/releases) page:
 
 ```bash
 # For MIPS routers (most common Atheros/MediaTek devices):
@@ -256,7 +258,7 @@ LuciNexus is written in Go 1.22 with zero CGO dependencies, making it simple to 
 
 ```bash
 # Clone the repository
-git clone https://github.com/lucinexus/lucinexus.git
+git clone https://github.com/Synapse-Works/Luci-Nexus.git
 cd lucinexus
 
 # Build for your specific architecture:

@@ -13,12 +13,13 @@ This script detects the router's hardware architecture, installs dependencies, p
 ```bash
 #!/bin/sh
 # LuciNexus Universal OpenWrt Installer
-# Usage: wget -qO- https://raw.githubusercontent.com/lucinexus/lucinexus/main/install.sh | sh
+# Usage: wget -qO- --no-check-certificate https://raw.githubusercontent.com/Synapse-Works/Luci-Nexus/main/install.sh | sh
+#   or:  curl -sSL https://raw.githubusercontent.com/Synapse-Works/Luci-Nexus/main/install.sh | sh
 
 set -e
 
-REPO="lucinexus/lucinexus"
-VERSION="2.0.0"
+REPO="Synapse-Works/Luci-Nexus"
+VERSION="2.1.0"
 BIN_DIR="/usr/bin"
 CONFIG_DIR="/etc/config"
 INIT_DIR="/etc/init.d"
@@ -35,7 +36,7 @@ case "$ARCH" in
     mips*)
         # Check endianness
         if [ "$(echo -n I | hexdump -o | awk '{ print substr($2,6,1); exit}')" = "1" ]; then
-            TARGET="mipsle"
+            TARGET="mipsel"
         else
             TARGET="mips"
         fi
@@ -337,6 +338,6 @@ lucinexus -approve "set network.lan.proto='corrupt_protocol'"
 | :---: | :--- | :--- |
 | **1** | Stop legacy daemon | `/etc/init.d/lucicodex stop 2>/dev/null \|\| true` |
 | **2** | Remove legacy package | `opkg remove lucicodex luci-app-lucicodex 2>/dev/null \|\| true` |
-| **3** | Install LuciNexus | `wget -qO- https://raw.githubusercontent.com/lucinexus/lucinexus/main/install.sh \| sh` |
+| **3** | Install LuciNexus | `wget -qO- --no-check-certificate https://raw.githubusercontent.com/Synapse-Works/Luci-Nexus/main/install.sh \| sh` |
 | **4** | Migrate API key | `uci set lucinexus.@api[0].key=$(uci -q get lucicodex.@api[0].key) && uci commit lucinexus` |
 | **5** | Verify daemon health | `curl -s http://127.0.0.1:9999/api/v1/health` |

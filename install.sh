@@ -1,10 +1,11 @@
 #!/bin/sh
 # LuciNexus Universal OpenWrt Installer
-# Usage: wget -qO- https://raw.githubusercontent.com/lucinexus/lucinexus/main/install.sh | sh
+# Usage: wget -qO- --no-check-certificate https://raw.githubusercontent.com/Synapse-Works/Luci-Nexus/main/install.sh | sh
+#   or:  curl -sSL https://raw.githubusercontent.com/Synapse-Works/Luci-Nexus/main/install.sh | sh
 
 set -e
 
-REPO="lucinexus/lucinexus"
+REPO="Synapse-Works/Luci-Nexus"
 VERSION="2.1.0"
 BIN_DIR="/usr/bin"
 CONFIG_DIR="/etc/config"
@@ -17,7 +18,11 @@ echo "=========================================================="
 ARCH=$(uname -m)
 case "$ARCH" in
     mips*)
-        if [ "$(echo -n I | hexdump -o | awk '{ print substr($2,6,1); exit}')" = "1" ]; then
+        if [ -f /etc/openwrt_release ] && grep -qi 'mipsel' /etc/openwrt_release; then
+            TARGET="mipsel"
+        elif echo -n I | hexdump -o 2>/dev/null | awk '{ print substr($2,6,1); exit}' | grep -q "1"; then
+            TARGET="mipsel"
+        elif echo -n I | od -to2 2>/dev/null | awk '{ print substr($2,6,1); exit}' | grep -q "1"; then
             TARGET="mipsel"
         else
             TARGET="mips"
@@ -51,10 +56,17 @@ done
 
 URL="https://github.com/${REPO}/releases/download/v${VERSION}/lucinexus-${TARGET}"
 echo "✓ Downloading binary from $URL..."
-wget -q -O "${BIN_DIR}/lucinexus" "$URL" || {
-    echo "❌ Failed to download binary. Please verify internet connection."
-    exit 1
-}
+if command -v curl >/dev/null 2>&1; then
+    curl -sSL -o "${BIN_DIR}/lucinexus" "$URL" || {
+        echo "❌ Failed to download binary. Please verify internet connection."
+        exit 1
+    }
+else
+    wget -q -O "${BIN_DIR}/lucinexus" "$URL" || {
+        echo "❌ Failed to download binary. Please verify internet connection."
+        exit 1
+    }
+fi
 chmod +x "${BIN_DIR}/lucinexus"
 
 if [ ! -f "${CONFIG_DIR}/lucinexus" ]; then
