@@ -1,0 +1,83 @@
+name: Build & Release LuciNexus
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-binaries:
+    name: Build Multi-Arch Binaries
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+            artifact_name: lucinexus-amd64
+          - goos: linux
+            goarch: arm64
+            artifact_name: lucinexus-arm64
+          - goos: linux
+            goarch: arm
+            goarm: 7
+            artifact_name: lucinexus-arm
+          - goos: linux
+            goarch: mips
+            gomips: softfloat
+            artifact_name: lucinexus-mips
+          - goos: linux
+            goarch: mipsle
+            gomips: softfloat
+            artifact_name: lucinexus-mipsel
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go 1.22
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Compile Stripped Binary
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          GOARM: ${{ matrix.goarm }}
+          GOMIPS: ${{ matrix.gomips }}
+          CGO_ENABLED: 0
+        run: |
+          mkdir -p dist
+          go build -trimpath -ldflags="-s -w -X 'github.com/lucinexus/lucinexus/internal/config.Version=${{ github.ref_name }}'"             -o dist/${{ matrix.artifact_name }} ./cmd/lucinexus
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: dist/${{ matrix.artifact_name }}
+
+  release:
+    name: Create GitHub Release
+    needs: build-binaries
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release_assets/
+          merge-multiple: true
+
+      - name: Compute Checksums
+        run: |
+          cd release_assets
+          sha256sum * > SHA256SUMS
+
+      - name: Publish Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release_assets/*
+          draft: false
+          prerelease: false
+          generate_release_notes: true
