@@ -70,6 +70,9 @@ mkdir -p "${BIN_DIR}" "${CONFIG_DIR}" "${INIT_DIR}"
 
 URL="https://github.com/${REPO}/releases/download/v${VERSION}/lucinexus-${TARGET}"
 
+TMP_BIN="/tmp/lucinexus.$$"
+rm -f "$TMP_BIN"
+
 if [ -f "./bin/lucinexus-${TARGET}" ]; then
     echo "✓ Found local binary ./bin/lucinexus-${TARGET}, installing to ${BIN_DIR}/lucinexus..."
     cp "./bin/lucinexus-${TARGET}" "${BIN_DIR}/lucinexus"
@@ -77,18 +80,37 @@ elif [ -f "./bin/lucinexus" ]; then
     echo "✓ Found local binary ./bin/lucinexus, installing to ${BIN_DIR}/lucinexus..."
     cp "./bin/lucinexus" "${BIN_DIR}/lucinexus"
 else
-    echo "✓ Downloading binary from $URL..."
+    echo "✓ Downloading binary for $TARGET from $URL..."
+    DL_OK=0
     if command -v curl >/dev/null 2>&1; then
-        curl -sSL -o "${BIN_DIR}/lucinexus" "$URL" || {
-            echo "❌ Failed to download binary. Please verify internet connection or release asset."
-            exit 1
-        }
+        if curl -fsSL -o "$TMP_BIN" "$URL" 2>/dev/null; then
+            DL_OK=1
+        fi
+    fi
+    if [ "$DL_OK" -eq 0 ]; then
+        if wget -q --no-check-certificate -O "$TMP_BIN" "$URL" 2>/dev/null || wget -q -O "$TMP_BIN" "$URL" 2>/dev/null; then
+            if [ -s "$TMP_BIN" ] && ! grep -qi "Not Found" "$TMP_BIN" 2>/dev/null; then
+                DL_OK=1
+            fi
+        fi
+    fi
+
+    FILE_SIZE=0
+    if [ -f "$TMP_BIN" ]; then
+        FILE_SIZE=$(wc -c < "$TMP_BIN" 2>/dev/null || echo 0)
+    fi
+
+    if [ "$DL_OK" -eq 1 ] && [ "$FILE_SIZE" -gt 100000 ]; then
+        mv "$TMP_BIN" "${BIN_DIR}/lucinexus"
+        echo "✓ Successfully installed binary ($((FILE_SIZE / 1024)) KB)."
     else
-        wget -q --no-check-certificate -O "${BIN_DIR}/lucinexus" "$URL" 2>/dev/null || \
-        wget -q -O "${BIN_DIR}/lucinexus" "$URL" || {
-            echo "❌ Failed to download binary. Please verify internet connection or release asset."
-            exit 1
-        }
+        rm -f "$TMP_BIN"
+        echo "❌ Binary download failed: Release asset 'lucinexus-${TARGET}' is not available on GitHub Releases yet."
+        echo ""
+        echo "  To fix this immediately, transfer the pre-compiled binary from your computer:"
+        echo "    scp bin/lucinexus-${TARGET} root@$(uci get network.lan.ipaddr 2>/dev/null || echo '<router-ip>'):/usr/bin/lucinexus"
+        echo "    chmod +x /usr/bin/lucinexus"
+        exit 1
     fi
 fi
 
