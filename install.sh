@@ -107,8 +107,10 @@ else
         rm -f "$TMP_BIN"
         echo "❌ Binary download failed: Release asset 'lucinexus-${TARGET}' is not available on GitHub Releases yet."
         echo ""
+        ROUTER_IP=$(uci get network.lan.ipaddr 2>/dev/null | cut -d/ -f1)
+        ROUTER_IP="${ROUTER_IP:-<router-ip>}"
         echo "  To fix this immediately, transfer the pre-compiled binary from your computer:"
-        echo "    scp bin/lucinexus-${TARGET} root@$(uci get network.lan.ipaddr 2>/dev/null || echo '<router-ip>'):/usr/bin/lucinexus"
+        echo "    scp bin/lucinexus-${TARGET} root@${ROUTER_IP}:/usr/bin/lucinexus"
         echo "    chmod +x /usr/bin/lucinexus"
         exit 1
     fi
