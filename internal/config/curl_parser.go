@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -81,6 +82,20 @@ func ParseCURL(curlCmd string) (*CustomProviderConfig, error) {
 					cfg.Model = m
 				}
 			}
+			if cfg.Model == "" {
+				cleaned := strings.ReplaceAll(dataPayload, `\"`, `"`)
+				if err := json.Unmarshal([]byte(cleaned), &bodyMap); err == nil {
+					if m, ok := bodyMap["model"].(string); ok && m != "" {
+						cfg.Model = m
+					}
+				}
+			}
+			if cfg.Model == "" {
+				re := regexp.MustCompile(`(?i)["']?model["']?\s*:\s*["']([^"',}\s]+)["']`)
+				if matches := re.FindStringSubmatch(dataPayload); len(matches) > 1 {
+					cfg.Model = matches[1]
+				}
+			}
 			continue
 		}
 
@@ -100,6 +115,13 @@ func ParseCURL(curlCmd string) (*CustomProviderConfig, error) {
 
 	if _, err := url.ParseRequestURI(cfg.Endpoint); err != nil {
 		return nil, fmt.Errorf("invalid endpoint URL '%s': %w", cfg.Endpoint, err)
+	}
+
+	// Auto-normalize OpenAI-compatible endpoints ending in /v1 or /v1/
+	if strings.HasSuffix(cfg.Endpoint, "/v1") {
+		cfg.Endpoint = cfg.Endpoint + "/chat/completions"
+	} else if strings.HasSuffix(cfg.Endpoint, "/v1/") {
+		cfg.Endpoint = cfg.Endpoint + "chat/completions"
 	}
 
 	if cfg.Model == "" {
@@ -171,6 +193,14 @@ func tokenizeShellArgs(cmd string) []string {
 			continue
 		}
 		if r == '"' && !inSingle {
+			bsCount := 0
+			for j := i - 1; j >= 0 && cmd[j] == '\\'; j-- {
+				bsCount++
+			}
+			if bsCount%2 != 0 {
+				cur.WriteByte(r)
+				continue
+			}
 			inDouble = !inDouble
 			continue
 		}
