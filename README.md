@@ -98,13 +98,13 @@ Download the package matching your router's architecture from the [Releases](htt
 
 ```bash
 # For MIPS routers (most common Atheros/MediaTek devices):
-opkg install /tmp/lucinexus_1.0.0_mips_24kc.ipk
+apk add /tmp/lucinexus_1.0.0_mips_24kc.ipk
 
 # For ARM64 routers (Raspberry Pi 4, Banana Pi, NanoPi):
-opkg install /tmp/lucinexus_1.0.0_aarch64_cortex-a53.ipk
+apk add /tmp/lucinexus_1.0.0_aarch64_cortex-a53.ipk
 
 # For x86_64 routers (mini-PCs, x86 appliances, virtual machines):
-opkg install /tmp/lucinexus_1.0.0_x86_64.ipk
+apk add /tmp/lucinexus_1.0.0_x86_64.ipk
 ```
 
 Verify installation:
@@ -210,7 +210,7 @@ lucinexus -server
 ### Available CLI Flags
 
 | Flag       | Default | Description                                                      |
-| :--------- | :------ | :--------------------------------------------------------------- |
+|:---------- |:------- |:---------------------------------------------------------------- |
 | `-dry-run` | `true`  | Preview execution plan without mutating router configuration     |
 | `-approve` | `false` | Execute commands with health checks and auto-rollback protection |
 | `-curl`    | `""`    | Import custom AI provider configuration from a `curl` snippet    |
