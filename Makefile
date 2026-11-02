@@ -1,5 +1,5 @@
 NAME := lucinexus
-VERSION := 2.1.0
+VERSION := 1.0.0
 BUILD_TIME := $(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
 LDFLAGS := -s -w -X 'github.com/lucinexus/lucinexus/internal/config.Version=$(VERSION)' -X 'github.com/lucinexus/lucinexus/internal/config.BuildTime=$(BUILD_TIME)'
 

@@ -24,10 +24,8 @@ type CustomProviderConfig struct {
 }
 
 func ParseCURL(curlCmd string) (*CustomProviderConfig, error) {
-	clean := strings.ReplaceAll(curlCmd, "\
-", " ")
-	clean = strings.ReplaceAll(clean, "\
-", " ")
+	clean := strings.ReplaceAll(curlCmd, "\\\r\n", " ")
+	clean = strings.ReplaceAll(clean, "\\\n", " ")
 	clean = strings.TrimSpace(clean)
 
 	tokens := tokenizeShellArgs(clean)
@@ -168,7 +166,7 @@ func tokenizeShellArgs(cmd string) []string {
 
 	for i := 0; i < len(cmd); i++ {
 		r := cmd[i]
-		if r == ''' && !inDouble {
+		if r == '\'' && !inDouble {
 			inSingle = !inSingle
 			continue
 		}

@@ -64,9 +64,7 @@ var localIntents = map[string]Intent{
 		Execute: func(ctx context.Context) (string, error) {
 			uptime, _ := exec.CommandContext(ctx, "uptime").Output()
 			mem, _ := exec.CommandContext(ctx, "free").Output()
-			return fmt.Sprintf("Uptime: %s
-Memory:
-%s", string(uptime), string(mem)), nil
+			return fmt.Sprintf("Uptime: %s\nMemory:\n%s", string(uptime), string(mem)), nil
 		},
 	},
 }

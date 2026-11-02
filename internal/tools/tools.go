@@ -90,7 +90,7 @@ func GetAvailableToolDefinitions() []ToolDef {
 				"type": "object",
 				"properties": map[string]interface{}{
 					"target": map[string]string{"type": "string", "description": "Target IP or hostname"},
-					"count":  map[string]int{"type": "integer", "description": "Packet count (1-5)"},
+					"count":  map[string]string{"type": "integer", "description": "Packet count (1-5)"},
 				},
 				"required": []string{"target"},
 			},

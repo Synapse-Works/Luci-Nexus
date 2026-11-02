@@ -1,6 +1,6 @@
 # 🛠️ LuciNexus: Deployment Toolkit, Procd Services & CI/CD Pipeline
 
-**Project:** LuciNexus (v2.0.0)  
+**Project:** LuciNexus (v1.0.0)  
 **Target Systems:** OpenWrt 21.02, 22.03, 23.05, and snapshot releases  
 **Compatible Architectures:** `mips_24kc`, `mipsel_24kc`, `arm_cortex-a7`, `aarch64_cortex-a53`, `x86_64`
 
@@ -19,7 +19,7 @@ This script detects the router's hardware architecture, installs dependencies, p
 set -e
 
 REPO="Synapse-Works/Luci-Nexus"
-VERSION="2.1.0"
+VERSION="1.0.0"
 BIN_DIR="/usr/bin"
 CONFIG_DIR="/etc/config"
 INIT_DIR="/etc/init.d"

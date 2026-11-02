@@ -1,6 +1,6 @@
 # 🚀 LuciNexus: Autonomous, Resilient AI Agent for OpenWrt
 
-[Release: v2.1.0](https://github.com/Synapse-Works/Luci-Nexus/releases)
+[Release: v1.0.0](https://github.com/Synapse-Works/Luci-Nexus/releases)
 [License: Apache 2.0](https://github.com/Synapse-Works/Luci-Nexus/blob/main/LICENSE)
 [](#-cross-compilation)
 [](#-safety--resilience-architecture)

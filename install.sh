@@ -6,10 +6,12 @@
 set -e
 
 REPO="Synapse-Works/Luci-Nexus"
-VERSION="2.1.0"
-BIN_DIR="/usr/bin"
-CONFIG_DIR="/etc/config"
-INIT_DIR="/etc/init.d"
+VERSION="1.0.0"
+BIN_DIR="${BIN_DIR:-/usr/bin}"
+CONFIG_DIR="${CONFIG_DIR:-/etc/config}"
+INIT_DIR="${INIT_DIR:-/etc/init.d}"
+LUCI_CONTROLLER_DIR="${LUCI_CONTROLLER_DIR:-/usr/lib/lua/luci/controller}"
+LUCI_VIEW_DIR="${LUCI_VIEW_DIR:-/www/luci-static/resources/view/lucinexus}"
 
 echo "=========================================================="
 echo "  🚀 Installing LuciNexus v${VERSION} on OpenWrt..."
@@ -46,27 +48,50 @@ esac
 echo "✓ Detected architecture: $ARCH -> target binary: lucinexus-$TARGET"
 
 echo "✓ Checking dependencies..."
-opkg update >/dev/null 2>&1 || true
-for pkg in ca-certificates libustream-mbedtls curl; do
-    if ! opkg list-installed | grep -q "^$pkg"; then
-        echo "  -> Installing $pkg..."
-        opkg install "$pkg" >/dev/null 2>&1 || true
-    fi
-done
+if command -v apk >/dev/null 2>&1; then
+    apk update >/dev/null 2>&1 || true
+    for pkg in ca-certificates libustream-mbedtls curl; do
+        if ! apk info 2>/dev/null | grep -q "^$pkg"; then
+            echo "  -> Installing $pkg via apk..."
+            apk add "$pkg" >/dev/null 2>&1 || true
+        fi
+    done
+elif command -v opkg >/dev/null 2>&1; then
+    opkg update >/dev/null 2>&1 || true
+    for pkg in ca-certificates libustream-mbedtls curl; do
+        if ! opkg list-installed 2>/dev/null | grep -q "^$pkg"; then
+            echo "  -> Installing $pkg via opkg..."
+            opkg install "$pkg" >/dev/null 2>&1 || true
+        fi
+    done
+fi
+
+mkdir -p "${BIN_DIR}" "${CONFIG_DIR}" "${INIT_DIR}"
 
 URL="https://github.com/${REPO}/releases/download/v${VERSION}/lucinexus-${TARGET}"
-echo "✓ Downloading binary from $URL..."
-if command -v curl >/dev/null 2>&1; then
-    curl -sSL -o "${BIN_DIR}/lucinexus" "$URL" || {
-        echo "❌ Failed to download binary. Please verify internet connection."
-        exit 1
-    }
+
+if [ -f "./bin/lucinexus-${TARGET}" ]; then
+    echo "✓ Found local binary ./bin/lucinexus-${TARGET}, installing to ${BIN_DIR}/lucinexus..."
+    cp "./bin/lucinexus-${TARGET}" "${BIN_DIR}/lucinexus"
+elif [ -f "./bin/lucinexus" ]; then
+    echo "✓ Found local binary ./bin/lucinexus, installing to ${BIN_DIR}/lucinexus..."
+    cp "./bin/lucinexus" "${BIN_DIR}/lucinexus"
 else
-    wget -q -O "${BIN_DIR}/lucinexus" "$URL" || {
-        echo "❌ Failed to download binary. Please verify internet connection."
-        exit 1
-    }
+    echo "✓ Downloading binary from $URL..."
+    if command -v curl >/dev/null 2>&1; then
+        curl -sSL -o "${BIN_DIR}/lucinexus" "$URL" || {
+            echo "❌ Failed to download binary. Please verify internet connection or release asset."
+            exit 1
+        }
+    else
+        wget -q --no-check-certificate -O "${BIN_DIR}/lucinexus" "$URL" 2>/dev/null || \
+        wget -q -O "${BIN_DIR}/lucinexus" "$URL" || {
+            echo "❌ Failed to download binary. Please verify internet connection or release asset."
+            exit 1
+        }
+    fi
 fi
+
 chmod +x "${BIN_DIR}/lucinexus"
 
 if [ ! -f "${CONFIG_DIR}/lucinexus" ]; then
@@ -119,8 +144,28 @@ stop_service() {
 }
 INIT_EOF
 chmod +x "${INIT_DIR}/lucinexus"
-"${INIT_DIR}/lucinexus" enable
-"${INIT_DIR}/lucinexus" restart
+
+if [ -f /etc/rc.common ]; then
+    "${INIT_DIR}/lucinexus" enable 2>/dev/null || true
+    "${INIT_DIR}/lucinexus" restart 2>/dev/null || true
+fi
+
+# Install LuCI Web UI components if LuCI directory or local package files exist
+if [ -d "/usr/lib/lua/luci" ] || [ -f "./package/luci-app-lucinexus/luasrc/controller/lucinexus.lua" ]; then
+    echo "✓ Installing LuCI web interface files..."
+    mkdir -p "$LUCI_CONTROLLER_DIR" "$LUCI_VIEW_DIR"
+    if [ -f "./package/luci-app-lucinexus/luasrc/controller/lucinexus.lua" ]; then
+        cp "./package/luci-app-lucinexus/luasrc/controller/lucinexus.lua" "${LUCI_CONTROLLER_DIR}/lucinexus.lua"
+        cp "./package/luci-app-lucinexus/htdocs/luci-static/resources/view/lucinexus/app.js" "${LUCI_VIEW_DIR}/app.js"
+    else
+        RAW_URL="https://raw.githubusercontent.com/${REPO}/main/package/luci-app-lucinexus"
+        if command -v curl >/dev/null 2>&1; then
+            curl -sSL -o "${LUCI_CONTROLLER_DIR}/lucinexus.lua" "${RAW_URL}/luasrc/controller/lucinexus.lua" 2>/dev/null || true
+            curl -sSL -o "${LUCI_VIEW_DIR}/app.js" "${RAW_URL}/htdocs/luci-static/resources/view/lucinexus/app.js" 2>/dev/null || true
+        fi
+    fi
+    rm -rf /tmp/luci-indexcache /tmp/luci-modulecache 2>/dev/null || true
+fi
 
 echo "=========================================================="
 echo "  🎉 LuciNexus v${VERSION} installed successfully!"
@@ -129,5 +174,5 @@ echo "  Configure your API key with:"
 echo "    uci set lucinexus.@api[0].key='YOUR_API_KEY'"
 echo "    uci commit lucinexus"
 echo "  Or configure a custom provider via cURL:"
-echo "    lucinexus config --curl '<curl_command>'"
+echo "    lucinexus -curl '<curl_command>'"
 echo "=========================================================="

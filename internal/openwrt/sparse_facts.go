@@ -46,19 +46,15 @@ func GetSparseContext(ctx context.Context, subsystems []Subsystem) (string, erro
 	defer cancel()
 
 	var sb strings.Builder
-	sb.WriteString("=== ROUTER CONTEXT ===
-")
+	sb.WriteString("=== ROUTER CONTEXT ===\n")
 
 	for _, s := range subsystems {
-		sb.WriteString(fmt.Sprintf("
---- SUBSYSTEM: %s ---
-", s))
+		sb.WriteString(fmt.Sprintf("\n--- SUBSYSTEM: %s ---\n", s))
 		out, err := exec.CommandContext(c, "uci", "show", string(s)).CombinedOutput()
 		if err == nil && len(out) > 0 {
 			if len(out) > 4096 {
 				sb.Write(out[:4096])
-				sb.WriteString("
-[...truncated...]")
+				sb.WriteString("\n[...truncated...]")
 			} else {
 				sb.Write(out)
 			}

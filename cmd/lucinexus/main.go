@@ -23,9 +23,7 @@ func main() {
 	flag.Parse()
 
 	if *version {
-		fmt.Printf("LuciNexus v%s (%s)
-Autonomous, Resilient OpenWrt Router Agent
-", config.Version, config.BuildTime)
+		fmt.Printf("LuciNexus v%s (%s)\nAutonomous, Resilient OpenWrt Router Agent\n", config.Version, config.BuildTime)
 		os.Exit(0)
 	}
 
@@ -36,35 +34,31 @@ Autonomous, Resilient OpenWrt Router Agent
 
 	cfg, err := config.LoadConfig(*cfgPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Config error: %v
-", err)
+		fmt.Fprintf(os.Stderr, "Config error: %v\n", err)
 		os.Exit(1)
 	}
 
 	orch, err := engine.NewOrchestrator(cfg)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Init error: %v
-", err)
+		fmt.Fprintf(os.Stderr, "Init error: %v\n", err)
 		os.Exit(1)
 	}
 
 	if *serverMode {
 		srv := server.NewServer(cfg, orch)
-		fmt.Printf("Starting LuciNexus daemon on 127.0.0.1:%d...
-", cfg.ServerPort)
+		fmt.Printf("Starting LuciNexus daemon on 127.0.0.1:%d...\n", cfg.ServerPort)
 		if err := srv.Start(); err != nil {
-			fmt.Fprintf(os.Stderr, "Server exited: %v
-", err)
+			fmt.Fprintf(os.Stderr, "Server exited: %v\n", err)
 		}
 		return
 	}
 
 	args := flag.Args()
 	if len(args) == 0 {
-		fmt.Println("Usage: lucinexus [flags] "<command prompt>"")
-		fmt.Println("Example: lucinexus "restart wifi"")
-		fmt.Println("Example: lucinexus -approve "open port 8080 for web server"")
-		fmt.Println("Example: lucinexus --curl "curl https://api.deepseek.com/..."")
+		fmt.Println("Usage: lucinexus [flags] \"<command prompt>\"")
+		fmt.Println("Example: lucinexus \"restart wifi\"")
+		fmt.Println("Example: lucinexus -approve \"open port 8080 for web server\"")
+		fmt.Println("Example: lucinexus --curl \"curl https://api.deepseek.com/...\"")
 		os.Exit(0)
 	}
 
@@ -78,14 +72,12 @@ Autonomous, Resilient OpenWrt Router Agent
 
 	plan, err := orch.Execute(ctx, args[0], isDryRun)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Execution Failed: %v
-", err)
+		fmt.Fprintf(os.Stderr, "Execution Failed: %v\n", err)
 		os.Exit(1)
 	}
 
 	fmt.Println("==================================================")
-	fmt.Printf("LuciNexus Plan Summary: %s
-", plan.Summary)
+	fmt.Printf("LuciNexus Plan Summary: %s\n", plan.Summary)
 	if plan.FastpathUsed {
 		fmt.Println("[Mode: Local Fastpath - Zero API latency, Offline safe]")
 	}
@@ -98,8 +90,7 @@ Autonomous, Resilient OpenWrt Router Agent
 	if len(plan.ToolCalls) > 0 {
 		fmt.Println("Planned Tool Operations:")
 		for i, tc := range plan.ToolCalls {
-			fmt.Printf(" %d. %s (args: %s)
-", i+1, tc.Name, string(tc.Arguments))
+			fmt.Printf(" %d. %s (args: %s)\n", i+1, tc.Name, string(tc.Arguments))
 		}
 	}
 	if plan.RollbackTaken {
@@ -111,18 +102,14 @@ func handleCURLImport(cmd string) {
 	fmt.Println("Parsing cURL snippet...")
 	parsed, err := config.ParseCURL(cmd)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "❌ Failed to parse cURL snippet: %v
-", err)
+		fmt.Fprintf(os.Stderr, "❌ Failed to parse cURL snippet: %v\n", err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("✓ Detected Endpoint: %s
-", parsed.Endpoint)
-	fmt.Printf("✓ Detected Model:    %s
-", parsed.Model)
+	fmt.Printf("✓ Detected Endpoint: %s\n", parsed.Endpoint)
+	fmt.Printf("✓ Detected Model:    %s\n", parsed.Model)
 	if parsed.APIKey != "" {
-		fmt.Printf("✓ Detected Token:    %s****
-", parsed.APIKey[:min(4, len(parsed.APIKey))])
+		fmt.Printf("✓ Detected Token:    %s****\n", parsed.APIKey[:min(4, len(parsed.APIKey))])
 	}
 
 	fmt.Print("Testing connection to endpoint... ")
@@ -131,11 +118,9 @@ func handleCURLImport(cmd string) {
 
 	lat, err := parsed.VerifyEndpoint(ctx)
 	if err != nil {
-		fmt.Printf("❌ Failed: %v
-", err)
+		fmt.Printf("❌ Failed: %v\n", err)
 	} else {
-		fmt.Printf("✓ Success (%v latency)
-", lat)
+		fmt.Printf("✓ Success (%v latency)\n", lat)
 	}
 
 	_ = exec.Command("uci", "set", "lucinexus.@api[0].provider=custom").Run()

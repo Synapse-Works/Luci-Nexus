@@ -139,8 +139,7 @@ func (g *geminiClient) Plan(ctx context.Context, systemPrompt, userQuery string,
 			{
 				"role": "user",
 				"parts": []map[string]string{
-					{"text": systemPrompt + "
-User Request: " + userQuery},
+					{"text": systemPrompt + "\nUser Request: " + userQuery},
 				},
 			},
 		},

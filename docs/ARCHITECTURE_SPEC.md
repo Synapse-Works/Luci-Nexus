@@ -1,7 +1,7 @@
 # 🛡️ LuciNexus: Reverse-Engineering LuciCodex & Next-Generation Autonomous OpenWrt Architecture
 
 **Author:** AI Systems Engineering  
-**Version:** 2.0.0 Production Architecture Specification  
+**Version:** 1.0.0 Production Architecture Specification  
 **Target Platform:** OpenWrt 21.02, 22.03, 23.05+ (MIPS, ARMv7, ARM64/aarch64, x86_64)  
 **Reference Target:** [`aezizhu/LuciCodex`](https://github.com/aezizhu/LuciCodex) (v1.0.0)
 
@@ -138,7 +138,7 @@ go 1.22
 ### 3.2 Cross-Compilation Engine (`Makefile`)
 ```makefile
 NAME := lucinexus
-VERSION := 2.0.0
+VERSION := 1.0.0
 BUILD_TIME := $(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
 LDFLAGS := -s -w -X 'github.com/lucinexus/lucinexus/internal/config.Version=$(VERSION)' -X 'github.com/lucinexus/lucinexus/internal/config.BuildTime=$(BUILD_TIME)'
 
@@ -600,7 +600,7 @@ func MatchLocalIntent(query string) (*Intent, bool) {
 
 ## 4. Hardware Benchmarks & Performance Verification
 
-| Metric | Legacy LuciCodex | **LuciNexus (v2.0)** | Improvement |
+| Metric | Legacy LuciCodex | **LuciNexus (v1.0)** | Improvement |
 | :--- | :--- | :--- | :--- |
 | **Peak RAM Allocation** | 58.4 MB (OOM risk on 64MB routers) | **9.2 MB** | **84% reduction** |
 | **Average Cold Execution Time** | 2,840 ms | **310 ms** (Fastpath: **8 ms**) | **9x faster** (350x on Fastpath) |
@@ -621,7 +621,7 @@ ssh root@192.168.1.1 "chmod +x /usr/bin/lucinexus"
 
 # Verify CLI version
 ssh root@192.168.1.1 "lucinexus -version"
-# Output: LuciNexus v2.0.0 (Autonomous, Resilient OpenWrt Router Agent)
+# Output: LuciNexus v1.0.0 (Autonomous, Resilient OpenWrt Router Agent)
 ```
 
 ### 5.2 Starting the Daemon & LuCI Interface

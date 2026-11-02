@@ -1,6 +1,6 @@
 # 🔌 LuciNexus: Custom AI Provider & cURL Import Specification
 
-**Version:** 2.1.0
+**Version:** 1.0.0
 
 **Feature:** Manual Custom API Provider Configuration & Zero-Click cURL Import Engine
 
@@ -16,7 +16,7 @@ Modern AI deployments span dozens of diverse providers beyond standard Google Ge
 
 * **Custom Enterprise Proxies & Gateway Routers:** LiteLLM, Cloudflare AI Gateway, Portkey.
 
-LuciNexus v2.1.0 introduces a dual-path configuration engine:
+LuciNexus v1.0.0 introduces a dual-path configuration engine:
 
 1. **Zero-Click cURL Importer:** Users can copy-paste any standard `curl` request snippet directly from API documentation or developer consoles. LuciNexus automatically parses arguments, extracts endpoint URLs, headers, auth tokens, and model identifiers, and verifies connectivity.
 
